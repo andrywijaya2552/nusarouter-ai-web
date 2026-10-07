@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NusaAI Studio - Powered by NusaRouter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  
+  <style>
+    :root {
+      --bg-dark: #0b0f19;
+      --bg-surface: #111827;
+      --bg-card: #1f2937;
+      --border: #374151;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --accent-cyan: #06b6d4;
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+      --text: #f9fafb;
+      --text-muted: #9ca3af;
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ================= SIDEBAR ================= */
+    .sidebar {
+      width: 280px;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      transition: 0.3s ease;
+    }
+    .brand {
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, var(--primary), var(--accent-cyan));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    .brand-name {
+      font-size: 18px;
+      font-weight: 800;
+      background: linear-gradient(90deg, #fff, var(--accent-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-menu {
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: 0.2s;
+      text-align: left;
+    }
+    .nav-btn:hover, .nav-btn.active {
+      background: rgba(99, 102, 241, 0.15);
+      color: #fff;
+    }
+    .nav-btn.active {
+      color: var(--accent-cyan);
+      border-left: 3px solid var(--accent-cyan);
+      border-radius: 4px var(--radius) var(--radius) 4px;
+    }
+
+    .user-footer {
+      padding: 16px;
+      border-top: 1px solid var(--border);
+      background: #0d131f;
+    }
+    .balance-card {
+      background: linear-gradient(135deg, #1e1b4b, #312e81);
+      border: 1px solid #4338ca;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .balance-label {
+      font-size: 11px;
+      color: #c7d2fe;
+      font-weight: 600;
+    }
+    .balance-val {
+      font-size: 18px;
+      font-weight: 800;
+      color: #38bdf8;
+      margin-top: 2px;
+    }
+
+    /* ================= MAIN CONTENT ================= */
+    .main-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .topbar {
+      height: 65px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      background: var(--bg-surface);
+    }
+    .model-badge {
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid var(--primary);
+      padding: 6px 14px;
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #818cf8;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .view-panel {
+      flex: 1;
+      display: none;
+      overflow-y: auto;
+    }
+    .view-panel.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ================= CHAT PANEL ================= */
+    .chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .msg {
+      display: flex;
+      gap: 12px;
+      max-width: 80%;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+    .msg.user {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+    .msg-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+    .msg.user .msg-avatar {
+      background: var(--primary);
+    }
+    .msg.ai .msg-avatar {
+      background: linear-gradient(135deg, var(--accent-cyan), #0284c7);
+    }
+    .msg-content {
+      padding: 12px 18px;
+      border-radius: 18px;
+      white-space: pre-wrap;
+    }
+    .msg.user .msg-content {
+      background: var(--primary);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+    .msg.ai .msg-content {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+    }
+
+    .chat-input-bar {
+      padding: 16px 24px;
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .chat-input {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      resize: none;
+    }
+    .chat-input:focus {
+      border-color: var(--primary);
+    }
+    .btn-send {
+      background: var(--primary);
+      border: none;
+      color: #fff;
+      padding: 14px 22px;
+      border-radius: var(--radius);
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: 0.2s;
+    }
+    .btn-send:hover {
+      background: var(--primary-hover);
+    }
+
+    /* ================= TOP UP PANEL ================= */
+    .topup-content, .admin-content {
+      max-width: 780px;
+      margin: 30px auto;
+      width: 100%;
+      padding: 0 20px;
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .card-title {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .nominal-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      color: #fff;
+      cursor: pointer;
+      text-align: center;
+      transition: 0.2s;
+    }
+    .nominal-btn.active, .nominal-btn:hover {
+      border-color: var(--accent-cyan);
+      background: rgba(6, 182, 212, 0.1);
+    }
+    .nominal-val {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--accent-cyan);
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-label {
+      display: block;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .form-control {
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+    }
+    .form-control:focus {
+      border-color: var(--primary);
+    }
+    .btn-submit {
+      width: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent-cyan));
+      border: none;
+      color: #fff;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    th {
+      color: var(--text-muted);
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 50px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .status-pending { background: #854d0e; color: #fef08a; }
+    .status-approved { background: #065f46; color: #a7f3d0; }
+    .status-rejected { background: #991b1b; color: #fecaca; }
+
+    /* Modal / Auth Popups */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 400px;
+      padding: 24px;
+      position: relative;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 70px;
+      }
+      .brand-name, .balance-label, .balance-val, .nav-btn span:not(.nav-icon), #userNameDisplay {
+        display: none;
+      }
+      .nav-btn {
+        justify-content: center;
+        padding: 12px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">🌐</div>
+      <div class="brand-name">NusaAI Studio</div>
+    </div>
+
+    <nav class="nav-menu">
+      <button class="nav-btn active" onclick="switchTab('chat')">
+        <span class="nav-icon">💬</span>
+        <span>AI Chat</span>
+      </button>
+      <button class="nav-btn" onclick="switchTab('topup')">
+        <span class="nav-icon">💳</span>
+        <span>Top Up Saldo</span>
+      </button>
+      <button class="nav-btn" id="adminMenuBtn" style="display: none;" onclick="switchTab('admin')">
+        <span class="nav-icon">⚙️</span>
+        <span>Panel Admin</span>
+      </button>
+    </nav>
+
+    <div class="user-footer">
+      <div class="balance-card">
+        <div class="balance-label">SALDO AI SAYA</div>
+        <div class="balance-val" id="userBalanceDisplay">Rp 0</div>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span id="userNameDisplay" style="font-size: 13px; font-weight: 700;">Pengguna</span>
+        <button onclick="handleLogout()" style="background: none; border: none; color: var(--accent-red); cursor: pointer; font-size: 12px; font-weight: 700;">Keluar</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <div class="main-area">
+    
+    <!-- Topbar -->
+    <header class="topbar">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 13px; font-weight: 700; color: #c7d2fe;">🤖 Pilih Model AI:</span>
+        <select id="modelSelector" class="form-control" style="width: auto; padding: 6px 12px; font-size: 13px; background: #1e1b4b; border-color: var(--primary); font-weight: bold; color: #38bdf8;" onchange="onModelChange()">
+          <option value="deepseek-flash-v4.1" data-price="200">DeepSeek Flash V4.1 — Rp 200/chat (Hemat)</option>
+          <option value="glm-5.3-flash" data-price="250">GLM 5.3 Flash — Rp 250/chat (Super Cepat)</option>
+          <option value="qwen3.8-omni-flash" data-price="300">Qwen 3.8 Omni Flash — Rp 300/chat (Hemat)</option>
+          <option value="gemini-3.7-flash-high" data-price="500">Gemini 3.7 Flash High — Rp 500/chat (Standar)</option>
+          <option value="kimi-k2.7-code" data-price="600">Kimi K2.7 Code — Rp 600/chat (Spesialis Koding)</option>
+          <option value="glm-5.2" data-price="650">GLM 5.2 Reasoning — Rp 650/chat (Standar)</option>
+          <option value="deepseek-v4.1-flash-Jailbreak" data-price="750">DeepSeek Flash Jailbreak — Rp 750/chat (Uncensored)</option>
+          <option value="gpt-5.6-luna" data-price="900">GPT 5.6 Luna — Rp 900/chat (Premium)</option>
+          <option value="gpt-5.6-terra" data-price="1200">GPT 5.6 Terra — Rp 1.200/chat (Premium)</option>
+          <option value="claude-sonnet-4.6" data-price="1500">Claude Sonnet 4.6 — Rp 1.500/chat (Ultra Flagship)</option>
+        </select>
+      </div>
+      <div style="font-size: 12px; color: var(--text-muted);">
+        Tarif Model: <b style="color: #38bdf8; font-size: 13px;" id="costDisplay">Rp 200</b> / pesan
+      </div>
+    </header>
+
+    <!-- 1. VIEW: AI CHAT -->
+    <section id="viewChat" class="view-panel active">
+      <div class="chat-container" id="chatBox">
+        <div class="msg ai">
+          <div class="msg-avatar">🤖</div>
+          <div class="msg-content">Halo! Saya adalah AI yang terhubung langsung dengan sistem **NusaRouter API**. 
+Ada yang bisa saya bantu untuk riset, coding, penulisan, atau ide kreatif Anda hari ini?</div>
+        </div>
+      </div>
+
+      <div class="chat-input-bar">
+        <textarea id="chatInput" rows="1" class="chat-input" placeholder="Ketik pertanyaan atau perintah untuk AI..." onkeydown="handleEnter(event)"></textarea>
+        <button class="btn-send" id="btnSend" onclick="sendMessage()">
+          <span>Kirim</span> ➔
+        </button>
+      </div>
+    </section>
+
+    <!-- 2. VIEW: TOP UP SALDO -->
+    <section id="viewTopup" class="view-panel">
+      <div class="topup-content">
+        <div class="card">
+          <div class="card-title">💳 Pengajuan Top Up Saldo Manual</div>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+            Pilih nominal, transfer ke rekening admin, lalu isi bukti pembayaran untuk diverifikasi.
+          </p>
+
+          <label class="form-label">Pilih Paket Saldo:</label>
+          <div class="grid-2">
+            <div class="nominal-btn active" onclick="selectNominal(this, 10000)">
+              <div class="nominal-val">Rp 10.000</div>
+              <small style="color: #9ca3af;">~20 Pesan AI</small>
+            </div>
+            <div class="nominal-btn" onclick="selectNominal(this, 25000)">
+              <div class="nominal-val">Rp 25.000</div>
+              <small style="color: #9ca3af;">~50 Pesan AI</small>
+            </div>
+            <div class="nominal-btn" onclick="selectNominal(this, 50000)">
+              <div class="nominal-val">Rp 50.000</div>
+              <small style="color: #9ca3af;">~100 Pesan AI</small>
+            </div>
+            <div class="nominal-btn" onclick="selectNominal(this, 100000)">
+              <div class="nominal-val">Rp 100.000</div>
+              <small style="color: #9ca3af;">~200 Pesan AI</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Tujuan Pembayaran:</label>
+            <div id="bankInfoBox" style="background: var(--bg-surface); padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.6; border: 1px dashed var(--border);">
+              Memuat info bank...
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nama Pemilik Rekening / Pengirim:</label>
+            <input type="text" id="topupSender" class="form-control" placeholder="Contoh: Budi Santoso" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nomor Referensi / ID Transaksi:</label>
+            <input type="text" id="topupRef" class="form-control" placeholder="Contoh: TRX-19283921" />
+          </div>
+
+          <button class="btn-submit" onclick="submitTopup()">🚀 Ajukan Konfirmasi Top Up</button>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📜 Riwayat Permintaan Top Up Saya</div>
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Invoice</th>
+                  <th>Nominal</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="userTopupTable">
+                <!-- Loaded via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. VIEW: PANEL ADMIN -->
+    <section id="viewAdmin" class="view-panel">
+      <div class="admin-content">
+        <!-- Pengaturan NusaRouter API Key -->
+        <div class="card">
+          <div class="card-title">🔑 Konfigurasi NusaRouter API Key</div>
+          <div class="form-group">
+            <label class="form-label">NusaRouter API Key:</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="password" id="adminApiKey" class="form-control" style="flex: 1;" placeholder="sk-nusa-xxxxxxxxxxxxxxxx" />
+              <button type="button" onclick="toggleApiKeyVisibility()" style="background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border); color: #fff; padding: 0 14px; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: bold; white-space: nowrap;">
+                <span id="eyeIcon">👁️</span> <span id="eyeText">Lihat</span>
+              </button>
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Default Model:</label>
+              <input type="text" id="adminModel" class="form-control" placeholder="nusarouter/auto" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Biaya Per Chat (Rp):</label>
+              <input type="number" id="adminCost" class="form-control" placeholder="500" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Info Rekening Pembayaran:</label>
+            <textarea id="adminBankInfo" rows="2" class="form-control"></textarea>
+          </div>
+          <button class="btn-submit" onclick="saveAdminSettings()">💾 Simpan Pengaturan NusaRouter</button>
+        </div>
+
+        <!-- Validasi Topup Masuk -->
+        <div class="card">
+          <div class="card-title">📋 Verifikasi Top Up Manual</div>
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>User / Invoice</th>
+                  <th>Nominal</th>
+                  <th>Pengirim / Ref</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="adminTopupList">
+                <!-- Loaded via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- User List -->
+        <div class="card">
+          <div class="card-title">👥 Daftar Pengguna Terdaftar</div>
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>Role</th>
+                  <th>Saldo</th>
+                </tr>
+              </thead>
+              <tbody id="adminUserList">
+                <!-- Loaded via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ================= AUTH MODAL ================= -->
+  <div class="modal-overlay" id="authModal" style="display: none;">
+    <div class="modal-card">
+      <div class="card-title" id="authTitle">🔑 Masuk ke NusaAI</div>
+      
+      <div class="form-group">
+        <label class="form-label">Username:</label>
+        <input type="text" id="authUsername" class="form-control" placeholder="Masukkan username" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Password:</label>
+        <input type="password" id="authPassword" class="form-control" placeholder="Masukkan password" />
+      </div>
+
+      <button class="btn-submit" id="btnAuthSubmit" onclick="submitAuth()">Masuk</button>
+      
+      <div style="text-align: center; margin-top: 14px; font-size: 13px;">
+        <span id="authToggleText" style="color: var(--text-muted);">Belum punya akun?</span>
+        <a href="#" onclick="toggleAuthMode()" style="color: var(--accent-cyan); font-weight: bold; text-decoration: none;" id="authToggleBtn">Daftar Akun</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentUser = null;
+    let authMode = 'login'; // 'login' or 'register'
+    let selectedAmount = 10000;
+    let chatHistory = [];
+
+    // INIT
+    async function init() {
+      const saved = localStorage.getItem('nusa_user');
+      if (saved) {
+        currentUser = JSON.parse(saved);
+        await refreshUserData();
+      } else {
+        openAuthModal('login');
+      }
+
+      await loadPublicSettings();
+    }
+
+    function onModelChange() {
+      const sel = document.getElementById('modelSelector');
+      const opt = sel.options[sel.selectedIndex];
+      const price = opt.getAttribute('data-price') || 500;
+      document.getElementById('costDisplay').innerText = `Rp ${parseInt(price).toLocaleString()}`;
+    }
+
+    async function refreshUserData() {
+      if (!currentUser) return;
+      try {
+        const res = await fetch(`/api/user/${currentUser.id}`);
+        const data = await res.json();
+        if (data.success) {
+          currentUser = { ...currentUser, ...data.user };
+          localStorage.setItem('nusa_user', JSON.stringify(currentUser));
+          updateUI();
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function updateUI() {
+      if (!currentUser) return;
+      document.getElementById('userNameDisplay').innerText = currentUser.username;
+      document.getElementById('userBalanceDisplay').innerText = `Rp ${currentUser.balance.toLocaleString()}`;
+
+      if (currentUser.role === 'admin') {
+        document.getElementById('adminMenuBtn').style.display = 'flex';
+      } else {
+        document.getElementById('adminMenuBtn').style.display = 'none';
+      }
+    }
+
+    // AUTH FUNCTIONS
+    function openAuthModal(mode) {
+      authMode = mode;
+      document.getElementById('authModal').style.display = 'flex';
+      if (mode === 'login') {
+        document.getElementById('authTitle').innerText = '🔑 Masuk ke NusaAI';
+        document.getElementById('btnAuthSubmit').innerText = 'Masuk';
+        document.getElementById('authToggleText').innerText = 'Belum punya akun?';
+        document.getElementById('authToggleBtn').innerText = 'Daftar Akun';
+      } else {
+        document.getElementById('authTitle').innerText = '📝 Daftar Akun Baru';
+        document.getElementById('btnAuthSubmit').innerText = 'Daftar Sekarang';
+        document.getElementById('authToggleText').innerText = 'Sudah punya akun?';
+        document.getElementById('authToggleBtn').innerText = 'Masuk di sini';
+      }
+    }
+
+    function toggleAuthMode() {
+      openAuthModal(authMode === 'login' ? 'register' : 'login');
+    }
+
+    async function submitAuth() {
+      const u = document.getElementById('authUsername').value.trim();
+      const p = document.getElementById('authPassword').value.trim();
+
+      if (!u || !p) return alert('Username & Password wajib diisi!');
+
+      const endpoint = authMode === 'login' ? '/api/auth/login' : '/api/auth/register';
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: u, password: p })
+        });
+        const data = await res.json();
+        if (!data.success) return alert(data.message);
+
+        currentUser = data.user;
+        localStorage.setItem('nusa_user', JSON.stringify(currentUser));
+        document.getElementById('authModal').style.display = 'none';
+        updateUI();
+        alert(data.message);
+      } catch (err) {
+        alert('Gagal terhubung ke server auth');
+      }
+    }
+
+    function handleLogout() {
+      localStorage.removeItem('nusa_user');
+      location.reload();
+    }
+
+    // CHAT SYSTEM
+    function handleEnter(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('chatInput');
+      const message = input.value.trim();
+      if (!message) return;
+      if (!currentUser) return openAuthModal('login');
+
+      // Append User Msg
+      appendMessage('user', message);
+      input.value = '';
+
+      const btn = document.getElementById('btnSend');
+      btn.disabled = true;
+      btn.innerText = 'Mengetik...';
+
+      try {
+        const selectedModel = document.getElementById('modelSelector').value;
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: currentUser.id,
+            message: message,
+            model: selectedModel,
+            history: chatHistory
+          })
+        });
+
+        const data = await res.json();
+        if (!data.success) {
+          appendMessage('ai', `⚠️ ${data.message}`);
+          if (res.status === 402) {
+            switchTab('topup');
+          }
+        } else {
+          appendMessage('ai', data.reply);
+          chatHistory.push({ role: 'user', content: message });
+          chatHistory.push({ role: 'assistant', content: data.reply });
+
+          // Update Balance
+          currentUser.balance = data.newBalance;
+          localStorage.setItem('nusa_user', JSON.stringify(currentUser));
+          updateUI();
+        }
+      } catch (e) {
+        appendMessage('ai', '⚠️ Terjadi kesalahan koneksi server.');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Kirim ➔';
+      }
+    }
+
+    function appendMessage(role, text) {
+      const box = document.getElementById('chatBox');
+      const div = document.createElement('div');
+      div.className = `msg ${role}`;
+      div.innerHTML = `
+        <div class="msg-avatar">${role === 'user' ? '👤' : '🤖'}</div>
+        <div class="msg-content">${escapeHtml(text)}</div>
+      `;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    // TOP UP SYSTEM
+    function selectNominal(el, val) {
+      document.querySelectorAll('.nominal-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      selectedAmount = val;
+    }
+
+    async function submitTopup() {
+      if (!currentUser) return openAuthModal('login');
+      const sender = document.getElementById('topupSender').value.trim();
+      const ref = document.getElementById('topupRef').value.trim();
+
+      if (!sender || !ref) return alert('Lengkapi data pengirim & no. referensi transfer!');
+
+      try {
+        const res = await fetch('/api/topup/request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: currentUser.id,
+            amount: selectedAmount,
+            senderName: sender,
+            refNumber: ref
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert(data.message);
+          document.getElementById('topupSender').value = '';
+          document.getElementById('topupRef').value = '';
+          loadUserTopupHistory();
+        } else {
+          alert(data.message);
+        }
+      } catch (e) {
+        alert('Gagal mengirim permintaan topup');
+      }
+    }
+
+    async function loadUserTopupHistory() {
+      if (!currentUser) return;
+      try {
+        const res = await fetch(`/api/topup/history/${currentUser.id}`);
+        const data = await res.json();
+        const tbody = document.getElementById('userTopupTable');
+        if (data.history.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#9ca3af;">Belum ada riwayat pengajuan</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = data.history.map(t => `
+          <tr>
+            <td><b>${t.id}</b></td>
+            <td>Rp ${t.amount.toLocaleString()}</td>
+            <td><span class="status-badge status-${t.status}">${t.status.toUpperCase()}</span></td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // ADMIN PANEL
+    async function loadAdminData() {
+      try {
+        const res = await fetch('/api/admin/dashboard');
+        const data = await res.json();
+        if (!data.success) return;
+
+        // Settings
+        document.getElementById('adminApiKey').value = data.settings.apiKey || '';
+        document.getElementById('adminModel').value = data.settings.defaultModel || 'nusarouter/auto';
+        document.getElementById('adminCost').value = data.settings.costPerChat || 500;
+        document.getElementById('adminBankInfo').value = data.settings.bankInfo || '';
+
+        // Topup requests
+        const topupTable = document.getElementById('adminTopupList');
+        if (data.topups.length === 0) {
+          topupTable.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#9ca3af;">Tidak ada transaksi topup</td></tr>';
+        } else {
+          topupTable.innerHTML = data.topups.map(t => `
+            <tr>
+              <td><b>${t.username}</b><br><small style="color:#9ca3af;">${t.id}</small></td>
+              <td>Rp ${t.amount.toLocaleString()}</td>
+              <td>${t.senderName}<br><small style="color:#9ca3af;">Ref: ${t.refNumber}</small></td>
+              <td>
+                ${t.status === 'pending' ? `
+                  <button onclick="approveTopup('${t.id}')" style="background:#10b981; color:#fff; border:none; padding:4px 8px; border-radius:6px; cursor:pointer; font-weight:bold;">Terima</button>
+                  <button onclick="rejectTopup('${t.id}')" style="background:#ef4444; color:#fff; border:none; padding:4px 8px; border-radius:6px; cursor:pointer; font-weight:bold;">Tolak</button>
+                ` : `
+                  <span class="status-badge status-${t.status}">${t.status.toUpperCase()}</span>
+                `}
+              </td>
+            </tr>
+          `).join('');
+        }
+
+        // Users
+        const userTable = document.getElementById('adminUserList');
+        userTable.innerHTML = data.users.map(u => `
+          <tr>
+            <td><b>${u.username}</b></td>
+            <td><span style="color:#a78bfa;">${u.role}</span></td>
+            <td style="color:#38bdf8;">Rp ${u.balance.toLocaleString()}</td>
+          </tr>
+        `).join('');
+
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function approveTopup(id) {
+      if (!confirm(`Konfirmasi setujui topup ${id}? Saldo pengguna akan otomatis bertambah.`)) return;
+      const res = await fetch('/api/admin/topup/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topupId: id })
+      });
+      const data = await res.json();
+      alert(data.message);
+      loadAdminData();
+      refreshUserData();
+    }
+
+    async function rejectTopup(id) {
+      if (!confirm(`Tolak permohonan topup ${id}?`)) return;
+      const res = await fetch('/api/admin/topup/reject', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topupId: id })
+      });
+      const data = await res.json();
+      alert(data.message);
+      loadAdminData();
+    }
+
+    async function saveAdminSettings() {
+      const apiKey = document.getElementById('adminApiKey').value.trim();
+      const defaultModel = document.getElementById('adminModel').value.trim();
+      const costPerChat = document.getElementById('adminCost').value;
+      const bankInfo = document.getElementById('adminBankInfo').value.trim();
+
+      const res = await fetch('/api/admin/settings/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey, defaultModel, costPerChat, bankInfo })
+      });
+      const data = await res.json();
+      alert(data.message);
+      loadPublicSettings();
+    }
+
+    function toggleApiKeyVisibility() {
+      const input = document.getElementById('adminApiKey');
+      const icon = document.getElementById('eyeIcon');
+      const text = document.getElementById('eyeText');
+
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.innerText = '🙈';
+        text.innerText = 'Sembunyikan';
+      } else {
+        input.type = 'password';
+        icon.innerText = '👁️';
+        text.innerText = 'Lihat';
+      }
+    }
+
+    // TABS SWITCHER
+    function switchTab(tab) {
+      document.querySelectorAll('.view-panel').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+      if (tab === 'chat') {
+        document.getElementById('viewChat').classList.add('active');
+        document.querySelectorAll('.nav-btn')[0].classList.add('active');
+      } else if (tab === 'topup') {
+        document.getElementById('viewTopup').classList.add('active');
+        document.querySelectorAll('.nav-btn')[1].classList.add('active');
+        loadUserTopupHistory();
+      } else if (tab === 'admin') {
+        document.getElementById('viewAdmin').classList.add('active');
+        document.getElementById('adminMenuBtn').classList.add('active');
+        loadAdminData();
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
